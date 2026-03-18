@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Types of fruits</h2>
+
+<button onclick="changeText()">Change fruit</button>
+
+<p id="displayFruit">Tap to change</p>
+
+<script>
+function changeText() {
+  const texts = ["Apple", "Banana", "guava", "pienapple", "watermelon"];
+  const randomIndex = Math.floor(Math.random() * texts.length);
+  document.getElementById("displayFruit").innerText = texts[randomIndex];
+}
+</script>
+
+</body>
+</html>
