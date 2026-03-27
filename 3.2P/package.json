@@ -1,0 +1,26 @@
+{
+  "name": "package.json",
+  "version": "1.0.0",
+  "description": "ASSIGNMENT",
+  "keywords": [
+    "12345"
+  ],
+  "homepage": "https://github.com/Mital-Hirpara/SIT725_s225611118#readme",
+  "bugs": {
+    "url": "https://github.com/Mital-Hirpara/SIT725_s225611118/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mital-Hirpara/SIT725_s225611118.git"
+  },
+  "license": "ISC",
+  "author": "mital",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
