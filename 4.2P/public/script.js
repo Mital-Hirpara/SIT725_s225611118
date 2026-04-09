@@ -39,10 +39,38 @@ Ingredients: ${r.ingredients}<br>
 Time: ${r.time}
 `;
 
+ // Create Delete button
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.style.marginTop = "5px";
+        delBtn.style.backgroundColor = "red";
+        delBtn.style.color = "white";
+        delBtn.style.border = "none";
+        delBtn.style.padding = "5px 10px";
+        delBtn.style.borderRadius = "5px";
+        delBtn.style.cursor = "pointer";
+
+        delBtn.onclick = async () => {
+            await fetch(`${API}/${r.id}`, { method: "DELETE" });
+            loadRecipes(); // refresh list
+        };
+
+        li.appendChild(document.createElement("br"));
+        li.appendChild(delBtn);
+
 list.appendChild(li);
 
 });
 
+}
+
+async function deleteRecipe(id) {
+    try {
+        await requestJson(`${API}/${id}`, { method: "DELETE" });
+        await loadBooks();
+    } catch (err) {
+        showError(err.message);
+    }
 }
 
 loadRecipes();
