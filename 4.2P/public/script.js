@@ -36,7 +36,7 @@ const li = document.createElement("li");
 li.innerHTML = `
 <b>${r.name}</b><br>
 Ingredients: ${r.ingredients}<br>
-Time: ${r.time}
+Time: ${r.time}>
 `;
 
  // Create Delete button
