@@ -1,13 +1,26 @@
-window.onload = async () => {
-  const response = await fetch('/api/recipes');
-  const recipes = await response.json();
-  
-  const recipesList = document.getElementById('recipes-list');
-  recipesList.innerHTML = '';
+async function loadBooks(){
 
-  recipes.forEach(recipe => {
-    const li = document.createElement('li');
-    li.textContent = `${recipe.title} by ${recipe.author}`;
-    recipesList.appendChild(li);
-  });
-};
+const res = await fetch("/api/books");
+
+const books = await res.json();
+
+const container = document.getElementById("books");
+
+container.innerHTML="";
+
+books.forEach(book=>{
+
+const div = document.createElement("div");
+
+div.innerHTML = `
+<h3>${book.title}</h3>
+<p>Author: ${book.author}</p>
+`;
+
+container.appendChild(div);
+
+});
+
+}
+
+window.onload = loadBooks;
