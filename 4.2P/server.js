@@ -1,68 +1,66 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+
 app.use(cors());
-app.use(express.static(__dirname));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "Public")));
 
-/* MongoDB Atlas Connection */
+if (!MONGO_URI) {
+    console.error("MONGO_URI is missing in .env");
+    process.exit(1);
+}
 
-mongoose.connect("mongodb+srv://mital2203_db_user:MitalHirpara@cluster0.fxvztft.mongodb.net/?appName=Cluster0")
-.then(()=>console.log("MongoDB Connected"))
-.catch(err=>console.log(err));
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("MongoDB Connected"))
+    .catch((err) => console.error("MongoDB connection failed:", err.message));
 
-/* Recipe Schema */
-
-const recipeSchema = new mongoose.Schema({
-    name: String,
-    ingredients: String,
-    time: String
+const BookSchema = new mongoose.Schema({
+    title: { type: String, required: true, trim: true },
+    author: { type: String, required: true, trim: true },
+    genre: String,
+    rating: Number,
+    available: Boolean
 });
 
-const Recipe = mongoose.model("Recipe", recipeSchema);
+const Book = mongoose.model("Book", BookSchema);
 
-/* Add Recipe */
-
-app.post("/addRecipe", async(req,res)=>{
-
-    const recipe = new Recipe({
-        name: req.body.name,
-        ingredients: req.body.ingredients,
-        time: req.body.time
-    });
-
-    await recipe.save();
-
-    res.json({message:"Recipe Added"});
-});
-
-/* Get Recipes */
-
-app.get("/recipes", async(req,res)=>{
-
-    const data = await Recipe.find();
-    res.json(data);
-});
-
-// Delete recipe by ID
-app.delete('/deleteRecipe/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedRecipe = await Recipe.findByIdAndDelete(id);
-
-    if (deletedRecipe) {
-      res.json({ message: 'Recipe deleted successfully' });
-    } else {
-      res.status(404).json({ message: 'Recipe not found' });
+app.get("/books", async (req, res) => {
+    try {
+        const books = await Book.find().sort({ _id: -1 });
+        res.json(books);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to load books", error: err.message });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
 });
 
-app.listen(3000, ()=>{
-    console.log("Server running on port 3000");
+app.post("/books", async (req, res) => {
+    try {
+        const newBook = new Book(req.body);
+        await newBook.save();
+        res.status(201).json(newBook);
+    } catch (err) {
+        res.status(400).json({ message: "Failed to add book", error: err.message });
+    }
 });
+
+app.delete("/books/:id", async (req, res) => {
+    try {
+        await Book.findByIdAndDelete(req.params.id);
+        res.json({ message: "Deleted" });
+    } catch (err) {
+        res.status(400).json({ message: "Failed to delete book", error: err.message });
+    }
+});
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "Public", "index.html"));
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

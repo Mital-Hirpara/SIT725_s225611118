@@ -1,70 +1,97 @@
-const API = "http://localhost:3000";
+const API = "http://localhost:3000/books";
 
-async function addRecipe(){
-
-const name = document.getElementById("name").value;
-const ingredients = document.getElementById("ingredients").value;
-const time = document.getElementById("time").value;
-
-await fetch(API+"/addRecipe",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-name,
-ingredients,
-time
-})
-});
-
-loadRecipes();
+function showError(message) {
+    alert(message);
 }
 
-async function loadRecipes(){
+async function requestJson(url, options = {}) {
+    let res;
 
-const res = await fetch(API+"/recipes");
-const data = await res.json();
+    try {
+        res = await fetch(url, options);
+    } catch (err) {
+        throw new Error("Cannot reach the server. Open the app from http://localhost:3000 and make sure npm start is running.");
+    }
 
-const list = document.getElementById("recipeList");
+    let data = null;
+    try {
+        data = await res.json();
+    } catch (err) {
+        data = null;
+    }
 
-list.innerHTML="";
+    if (!res.ok) {
+        const message = data?.message || `Request failed with status ${res.status}`;
+        throw new Error(message);
+    }
 
-data.forEach(r=>{
-const li = document.createElement("li");
-
-li.innerHTML = `
-<b>${r.name}</b><br>
-Ingredients: ${r.ingredients}<br>
-Time: ${r.time}>
-`;
-
- // Create Delete button
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "Delete";
-        delBtn.style.marginTop = "5px";
-        delBtn.style.backgroundColor = "red";
-        delBtn.style.color = "white";
-        delBtn.style.border = "none";
-        delBtn.style.padding = "5px 10px";
-        delBtn.style.borderRadius = "5px";
-        delBtn.style.cursor = "pointer";
-
-        delBtn.onclick = async () => {
-            await fetch(`${API}/${r.id}`, { method: "DELETE" });
-            loadRecipes(); // refresh list
-        };
-
-        li.appendChild(document.createElement("br"));
-        li.appendChild(delBtn);
-
-list.appendChild(li);
-
-});
-
+    return data;
 }
 
-async function deleteRecipe(id) {
+async function loadBooks() {
+    try {
+        const books = await requestJson(API);
+        const list = document.getElementById("bookList");
+        list.innerHTML = "";
+
+        books.forEach((book) => {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+            li.innerHTML = `
+            <hr>
+            <section>
+                <div class="book-grid">
+                    <article class="book-card">
+                        <h3>${book.title}</h3>
+                        <p>${book.author}</p>
+                    </article>
+                    <button class="delete-btn" onclick="deleteBook('${book._id}')" title="Delete Book">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </section>
+            `;
+
+            list.appendChild(li);
+        });
+    } catch (err) {
+        showError(err.message);
+    }
+}
+
+async function addBook() {
+    const title = document.getElementById("title").value.trim();
+    const author = document.getElementById("author").value.trim();
+
+    if (!title || !author) {
+        showError("Please enter all the fields");
+        return;
+    }
+
+    try {
+        await requestJson(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title,
+                author,
+                genre: "General",
+                rating: 4,
+                available: true
+            })
+        });
+
+        document.getElementById("title").value = "";
+        document.getElementById("author").value = "";
+
+        await loadBooks();
+    } catch (err) {
+        showError(err.message);
+    }
+}
+
+async function deleteBook(id) {
     try {
         await requestJson(`${API}/${id}`, { method: "DELETE" });
         await loadBooks();
@@ -73,4 +100,4 @@ async function deleteRecipe(id) {
     }
 }
 
-loadRecipes();
+loadBooks();
