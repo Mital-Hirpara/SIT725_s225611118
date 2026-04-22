@@ -32,28 +32,36 @@ async function loadBooks() {
     try {
         const books = await requestJson(API);
         const list = document.getElementById("bookList");
+        const emptyState = document.getElementById("emptyState");
+        const count = document.getElementById("bookCount");
+
         list.innerHTML = "";
+        count.textContent = books.length;
+        emptyState.classList.toggle("show", books.length === 0);
 
         books.forEach((book) => {
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
+            const card = document.createElement("article");
+            card.className = "book-card";
 
-            li.innerHTML = `
-            <hr>
-            <section>
-                <div class="book-grid">
-                    <article class="book-card">
-                        <h3>${book.title}</h3>
-                        <p>${book.author}</p>
-                    </article>
-                    <button class="delete-btn" onclick="deleteBook('${book._id}')" title="Delete Book">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
+            const initial = (book.title || "?").charAt(0).toUpperCase();
+
+            card.innerHTML = `
+                <div class="book-card-cover">
+                    <i class="fas fa-book-open" aria-hidden="true"></i>
                 </div>
-            </section>
+                <div class="book-card-content">
+                    <h3>${book.title}</h3>
+                    <p>by ${book.author}</p>
+                    <div class="card-meta">
+                        <span class="book-badge">${initial} Shelf</span>
+                        <button class="delete-btn" onclick="deleteBook('${book._id}')" title="Delete Book">
+                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
             `;
 
-            list.appendChild(li);
+            list.appendChild(card);
         });
     } catch (err) {
         showError(err.message);
