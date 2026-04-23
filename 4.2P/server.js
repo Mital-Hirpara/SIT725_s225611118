@@ -1,16 +1,11 @@
-const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
-const app = express();
+const { createApp } = require("./app");
+
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
 
 if (!MONGO_URI) {
     console.error("MONGO_URI is missing in .env");
@@ -30,37 +25,6 @@ const BookSchema = new mongoose.Schema({
 });
 
 const Book = mongoose.model("Book", BookSchema);
-
-app.get("/books", async (req, res) => {
-    try {
-        const books = await Book.find().sort({ _id: -1 });
-        res.json(books);
-    } catch (err) {
-        res.status(500).json({ message: "Failed to load books", error: err.message });
-    }
-});
-
-app.post("/books", async (req, res) => {
-    try {
-        const newBook = new Book(req.body);
-        await newBook.save();
-        res.status(201).json(newBook);
-    } catch (err) {
-        res.status(400).json({ message: "Failed to add book", error: err.message });
-    }
-});
-
-app.delete("/books/:id", async (req, res) => {
-    try {
-        await Book.findByIdAndDelete(req.params.id);
-        res.json({ message: "Deleted" });
-    } catch (err) {
-        res.status(400).json({ message: "Failed to delete book", error: err.message });
-    }
-});
-
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+const app = createApp({ Book });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

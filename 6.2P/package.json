@@ -1,0 +1,27 @@
+{
+  "name": "6.2p",
+  "version": "1.0.0",
+  "description": "Week 6 testing practical project",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha \"test/**/*.test.js\""
+  },
+  "keywords": [
+    "express",
+    "mocha",
+    "chai",
+    "testing"
+  ],
+  "author": "Mital",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "chai": "^5.2.0",
+    "mocha": "^11.7.1",
+    "supertest": "^7.1.1"
+  }
+}
